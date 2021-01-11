@@ -3,18 +3,18 @@
   "capabilities": [
     "configurable"
   ],
-  "companyName": "Meiguro",
-  "longName": "Pebble.js",
+  "companyName": "lourheroes",
+  "longName": "Pebblify",
   "resources": {
     "media": [
       {
-        "file": "images/menu_icon.png",
+        "file": "images/menu_icon_pebblify.png",
         "menuIcon": true,
         "name": "IMAGE_MENU_ICON",
         "type": "bitmap"
       },
       {
-        "file": "images/logo_splash.png",
+        "file": "images/logo_splash_pebblify.png",
         "name": "IMAGE_LOGO_SPLASH",
         "type": "bitmap"
       },
@@ -27,11 +27,41 @@
         "file": "fonts/UbuntuMono-Regular.ttf",
         "name": "MONO_FONT_14",
         "type": "font"
+      },
+      {
+        "file": "images/action_bar_icon_check.png",
+        "name": "IMAGE_ICON_CHECK",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/action_bar_icon_dismiss.png",
+        "name": "IMAGE_ICON_DISMISS",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_skip_backward.png",
+        "name": "IMAGE_MUSIC_ICON_BACKWARD",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_skip_forward.png",
+        "name": "IMAGE_MUSIC_ICON_FORWARD",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_play.png",
+        "name": "IMAGE_MUSIC_ICON_PLAY",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_pause.png",
+        "name": "IMAGE_MUSIC_ICON_PAUSE",
+        "type": "bitmap"
       }
     ]
   },
   "sdkVersion": "3",
-  "shortName": "Pebble.js",
+  "shortName": "Pebblify",
   "targetPlatforms": [
     "aplite",
     "basalt",
@@ -39,9 +69,9 @@
     "diorite",
     "emery"
   ],
-  "uuid": "133215f0-cf20-4c05-997b-3c9be5a64e5b",
+  "uuid": "affafaae-722d-4ca1-89c3-9df77b97f2e8",
   "versionCode": 1,
-  "versionLabel": "0.4",
+  "versionLabel": "0.1",
   "watchapp": {
     "watchface": false
   }
