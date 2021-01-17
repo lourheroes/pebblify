@@ -18,7 +18,10 @@ const spotifyAuth = new SpotifyAuth();
 class NowPlayingCard extends PebblifyCard {
   constructor() {
     super();
-    this._activeSession = false;
+    this._isActiveSession = false;
+    this._volumeActionsMode = false;
+    this._toolsActionsMode = false;
+
     this.subtitleColor(COLOR_BLACK);
     this.subtitle(APP_MESSAGES.NO_ACTIVE_SESSION);
   }
@@ -33,68 +36,203 @@ class NowPlayingCard extends PebblifyCard {
     });
 
     this.on('click', (event) => {
-      if (this.activeSession) {
-        let playbackAction = '';
-        let httpMethod = 'post';
-        switch (event.button) {
-          case PEBBLE_ACTIONS.UP:
-            playbackAction = 'previous';
-            break;
-          case PEBBLE_ACTIONS.SELECT:
-            httpMethod = 'put';
-            playbackAction = Settings.data('isPlaying') ? 'pause' : 'play';
-            break;
-          case PEBBLE_ACTIONS.DOWN:
-            playbackAction = 'next';
-            break;
-          default:
-            break;
+      if (this.isActiveSession) {
+        let playbackAction;
+        let httpMethod;
+        let makeCall = true;
+
+        if (this.volumeActionsMode) {
+          httpMethod = 'put';
+          switch (event.button) {
+            case PEBBLE_ACTIONS.UP:
+              playbackAction = 'volume';
+              break;
+            case PEBBLE_ACTIONS.SELECT:
+              playbackAction = this.currentSession?.is_playing
+                ? 'pause'
+                : 'play';
+              break;
+            case PEBBLE_ACTIONS.DOWN:
+              playbackAction = 'volume';
+              break;
+            default:
+              break;
+          }
+        } else if (this.toolsActionsMode) {
+        } else {
+          httpMethod = 'post';
+          switch (event.button) {
+            case PEBBLE_ACTIONS.UP:
+              playbackAction = 'previous';
+              break;
+            case PEBBLE_ACTIONS.SELECT:
+              this.volumeActionsMode = true;
+              break;
+            case PEBBLE_ACTIONS.DOWN:
+              playbackAction = 'next';
+              break;
+            default:
+              break;
+          }
         }
 
-        spotifyAuth.makeCall(
-          `${API_PATHS.PLAYER}/${playbackAction}`,
-          (data) => {
-            this.refresh();
-          },
-          (data) => {
-            console.log(JSON.stringify(data));
+        if (playbackAction) {
+          let volumePercent = 0;
+          if (playbackAction == 'volume') {
+            volumePercent = this.currentSession.device.volume_percent;
+            volumePercent =
+              event.button == PEBBLE_ACTIONS.UP
+                ? volumePercent + 10
+                : volumePercent - 10;
 
-            if (
-              data?.error?.status == 403 &&
-              data?.error?.reason == 'UNKNOWN'
-            ) {
-              console.log('CASE REFRESH + ACTIVE SESSION');
-              this.activeSession = true;
-              this.refresh();
-            } else if (
-              data?.error?.status == 404 &&
-              data?.error?.reason == 'NO_ACTIVE_DEVICE'
-            ) {
-              console.log('CASE NO REFRESH + NO ACTIVE SESSION');
-              this.activeSession = false;
-            } else {
-              console.log('CASE REFRESH + ACTIVE SESSION');
-              this.activeSession = true;
-              this.refresh();
+            // volumePercent must be between 0 and 100
+            if (volumePercent < 0 || volumePercent > 100) {
+              // round to 0 or 100
+              volumePercent = Math.round(volumePercent / 100) * 100;
             }
-          },
-          {},
-          httpMethod
-        );
+            // do not make a call if the volume stays the same (0, 100)
+            makeCall =
+              volumePercent != this.currentSession.device.volume_percent;
+          }
+
+          if (makeCall) {
+            // preemptively update the session volumePercent so repeated calls use the correct value
+            this.currentSession.device.volume_percent = volumePercent;
+            spotifyAuth.makeCall(
+              `${API_PATHS.PLAYER}/${playbackAction}${
+                playbackAction == 'volume'
+                  ? `?volume_percent=${volumePercent}`
+                  : ''
+              }`,
+              (data) => {
+                this.refresh();
+              },
+              (data) => {
+                if (
+                  data?.error?.status == 403 &&
+                  data?.error?.reason == 'UNKNOWN'
+                ) {
+                  // refresh & session is active
+                  this.isActiveSession = true;
+                  this.refresh();
+                } else if (
+                  data?.error?.status == 404 &&
+                  data?.error?.reason == 'NO_ACTIVE_DEVICE'
+                ) {
+                  // refresh & session is not active
+                  this.isActiveSession = false;
+                } else {
+                  // refresh & session is active
+                  this.isActiveSession = true;
+                  this.refresh();
+                }
+              },
+              {},
+              httpMethod
+            );
+          }
+        }
+      }
+    });
+
+    this.on('longClick', (event) => {
+      if (
+        this.isActiveSession &&
+        event.button == PEBBLE_ACTIONS.SELECT &&
+        !this.toolsActionsMode &&
+        !this.volumeActionsMode
+      ) {
+        this.toolsActionsMode = true;
       }
     });
   }
 
-  get activeSession() {
-    return this._activeSession;
+  get currentSession() {
+    return this._currentSession;
+  }
+
+  /**
+   * @param {object} sessionData
+   */
+  set currentSession(sessionData) {
+    this._currentSession = sessionData;
+  }
+
+  get volumeActionsMode() {
+    return this._volumeActionsMode;
+  }
+
+  /**
+   * @param {boolean} isVolumeActionsMode
+   */
+  set volumeActionsMode(isVolumeActionsMode) {
+    this._volumeActionsMode = isVolumeActionsMode;
+
+    if (isVolumeActionsMode) {
+      this.action({
+        up: 'IMAGE_MUSIC_ICON_VOLUME_UP',
+        select: this.currentSession?.is_playing
+          ? 'IMAGE_MUSIC_ICON_PAUSE'
+          : 'IMAGE_MUSIC_ICON_PLAY',
+        down: 'IMAGE_MUSIC_ICON_VOLUME_DOWN',
+      });
+
+      setTimeout(() => {
+        this._volumeActionsMode = false;
+        this.setDefaultActionsMode();
+      }, 2000);
+    }
+  }
+
+  get toolsActionsMode() {
+    return this._toolsActionsMode;
+  }
+
+  /**
+   * @param {boolean} isToolsActionsMode
+   */
+  set toolsActionsMode(isToolsActionsMode) {
+    this._toolsActionsMode = isToolsActionsMode;
+
+    if (isToolsActionsMode) {
+      this.action({
+        up: 'IMAGE_MUSIC_ICON_SHUFFLE',
+        select: 'IMAGE_MUSIC_ICON_FAVORITE',
+        down: 'IMAGE_MUSIC_ICON_ELLIPSIS',
+      });
+
+      setTimeout(() => {
+        this._toolsActionsMode = false;
+        this.setDefaultActionsMode();
+      }, 2000);
+    }
+  }
+
+  /**
+   * Sets the card actions to Previous, Ellipsis, Next
+   */
+  setDefaultActionsMode() {
+    this.action({
+      up: this.currentSession?.actions?.disallows?.skipping_prev
+        ? false
+        : 'IMAGE_MUSIC_ICON_BACKWARD',
+      select: 'IMAGE_MUSIC_ICON_ELLIPSIS',
+      down: this.currentSession?.actions?.disallows?.skipping_next
+        ? false
+        : 'IMAGE_MUSIC_ICON_FORWARD',
+    });
+  }
+
+  get isActiveSession() {
+    return this._isActiveSession;
   }
 
   /**
    * @param {boolean} isActive
    */
-  set activeSession(isActive) {
-    if (isActive != this._activeSession) {
-      this._activeSession = isActive;
+  set isActiveSession(isActive) {
+    if (isActive != this._isActiveSession) {
+      this._isActiveSession = isActive;
 
       if (!isActive) {
         this.subtitle(APP_MESSAGES.NO_ACTIVE_SESSION);
@@ -132,9 +270,10 @@ class NowPlayingCard extends PebblifyCard {
 
   refresh() {
     spotifyAuth.makeCall(
-      API_PATHS.CURRENTLY_PLAYING,
+      API_PATHS.PLAYER,
       (data) => {
-        this.activeSession = true;
+        this.isActiveSession = true;
+        this.currentSession = data;
 
         this.subtitleColor(COLOR_WHITE);
         this.subtitle(
@@ -146,32 +285,23 @@ class NowPlayingCard extends PebblifyCard {
 
         this.backgroundColor(SPOTIFY_GREEN);
 
-        this.action({
-          up: data?.actions?.disallows?.skipping_prev
-            ? false
-            : 'IMAGE_MUSIC_ICON_BACKWARD',
-          select: data?.is_playing
-            ? 'IMAGE_MUSIC_ICON_PAUSE'
-            : 'IMAGE_MUSIC_ICON_PLAY',
-          down: data?.actions?.disallows?.skipping_next
-            ? false
-            : 'IMAGE_MUSIC_ICON_FORWARD',
-        });
-        Settings.data('isPlaying', data?.is_playing);
+        if (!this.volumeActionsMode && !this.toolsActionsMode) {
+          this.setDefaultActionsMode();
+        }
       },
       (data) => {
-        this.activeSession = false;
+        this.isActiveSession = false;
         // TODO: handle NO_ACTIVE_DEVICE
         /*
-                if (
-                    data?.error?.status == 404 &&
-                    data?.error?.reason == 'NO_ACTIVE_DEVICE'
-                ) {
-                    this.activeSession = false;
-                } else {
-                    this.activeSession = false;
-                }
-                */
+        if (
+            data?.error?.status == 404 &&
+            data?.error?.reason == 'NO_ACTIVE_DEVICE'
+        ) {
+            this.isActiveSession = false;
+        } else {
+            this.isActiveSession = false;
+        }
+        */
       }
     );
   }
@@ -198,7 +328,8 @@ const main = () => {
     // access token is expired, request a new one using the refresh_token
     let refreshTimerId = Settings.data('refreshTimerId');
     if (refreshTimerId) {
-      clearInterval(refreshTimerId); // Clear the last refreshToken setInterval
+      // clear the last refreshToken setInterval
+      clearInterval(refreshTimerId);
     }
 
     spotifyAuth.refreshToken();
@@ -292,9 +423,7 @@ const main = () => {
               playlistsMenu.items(0, data.items);
             };
 
-            let playlistFailure = (data) => {
-              console.log('playlistFailure');
-            };
+            let playlistFailure = (data) => {};
 
             spotifyAuth.makeCall(
               API_PATHS.PLAYLISTS,
