@@ -49,6 +49,16 @@
         "type": "bitmap"
       },
       {
+        "file": "images/music_icon_volume_up.png",
+        "name": "IMAGE_MUSIC_ICON_VOLUME_UP",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_volume_down.png",
+        "name": "IMAGE_MUSIC_ICON_VOLUME_DOWN",
+        "type": "bitmap"
+      },
+      {
         "file": "images/music_icon_play.png",
         "name": "IMAGE_MUSIC_ICON_PLAY",
         "type": "bitmap"
@@ -56,6 +66,21 @@
       {
         "file": "images/music_icon_pause.png",
         "name": "IMAGE_MUSIC_ICON_PAUSE",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_ellipsis.png",
+        "name": "IMAGE_MUSIC_ICON_ELLIPSIS",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_shuffle.png",
+        "name": "IMAGE_MUSIC_ICON_SHUFFLE",
+        "type": "bitmap"
+      },
+      {
+        "file": "images/music_icon_favorite.png",
+        "name": "IMAGE_MUSIC_ICON_FAVORITE",
         "type": "bitmap"
       }
     ]
