@@ -1,0 +1,108 @@
+{
+  "name": "pebblify",
+  "author": "lourheroes",
+  "version": "0.2.0",
+  "keywords": [
+    "pebble-app"
+  ],
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "pebblejs": "^1.0.0"
+  },
+  "pebble": {
+    "displayName": "Pebblify",
+    "uuid": "affafaae-722d-4ca1-89c3-9df77b97f2e8",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite"
+    ],
+    "watchapp": {
+      "watchface": false
+    },
+    "messageKeys": [
+      "AppMsgTestOne",
+      "AppMsgTestTwo"
+    ],
+    "resources": {
+      "media": [
+        {
+          "type": "bitmap",
+          "name": "IMAGE_ICON_CHECK",
+          "file": "action_bar_icon_check.png"
+        },
+        {
+          "type": "bitmap",
+          "name": "IMAGE_ICON_DISMISS",
+          "file": "action_bar_icon_dismiss.png"
+        },
+        {
+          "file": "menu_icon_pebblify.png",
+          "menuIcon": true,
+          "name": "IMAGE_MENU_ICON",
+          "type": "bitmap"
+        },
+        {
+          "file": "logo_splash_pebblify.png",
+          "name": "IMAGE_LOGO_SPLASH",
+          "type": "bitmap"
+        },
+        {
+          "file": "tile_splash.png",
+          "name": "IMAGE_TILE_SPLASH",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_skip_backward.png",
+          "name": "IMAGE_MUSIC_ICON_BACKWARD",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_skip_forward.png",
+          "name": "IMAGE_MUSIC_ICON_FORWARD",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_volume_up.png",
+          "name": "IMAGE_MUSIC_ICON_VOLUME_UP",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_volume_down.png",
+          "name": "IMAGE_MUSIC_ICON_VOLUME_DOWN",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_play.png",
+          "name": "IMAGE_MUSIC_ICON_PLAY",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_pause.png",
+          "name": "IMAGE_MUSIC_ICON_PAUSE",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_ellipsis.png",
+          "name": "IMAGE_MUSIC_ICON_ELLIPSIS",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_shuffle.png",
+          "name": "IMAGE_MUSIC_ICON_SHUFFLE",
+          "type": "bitmap"
+        },
+        {
+          "file": "music_icon_favorite.png",
+          "name": "IMAGE_MUSIC_ICON_FAVORITE",
+          "type": "bitmap"
+        }
+      ]
+    }
+  }
+}
