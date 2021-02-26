@@ -12,6 +12,7 @@ You will need the Pebble SDK to run this project:
 
 #### Spotify
 Your will need to create an app in your Spotify developer portal
+
 In the app settings, fill the Redirect URIs section with
 
     pebblejs://close
