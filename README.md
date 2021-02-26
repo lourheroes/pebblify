@@ -5,7 +5,7 @@ Pebblify is a full-featured Spotify app for Pebble watches, made with PebbleJS â
 ---
 ## Requirements
 
-#### SDK
+#### Pebble SDK
 You will need the Pebble SDK to run this project:
 - SDK installation instruction: https://www.reddit.com/r/pebble/comments/9i9aqy/developing_for_pebble_without_cloudpebble_windows/
 - or get the docker image: https://hub.docker.com/r/rebble/pebble-sdk
