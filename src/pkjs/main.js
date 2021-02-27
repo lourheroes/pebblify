@@ -386,35 +386,59 @@ const main = () => {
       case 1:
         switch (e.itemIndex) {
           case 0:
+            let items = [];
+            let next;
             let playlistsMenu = new PebblifyMenu();
             playlistsMenu.status(false);
 
             playlistsMenu.on('select', (e) => {
-              console.log(
-                'Selected item #' +
-                  e.itemIndex +
-                  ' of section #' +
-                  e.sectionIndex
-              );
-              console.log('The item is titled "' + e.item.title + '"');
+              if (e.item.idKey == 'loadmore') {
+                getPlaylists(false, next);
+              } else {
+                // implement songs list here
+              }
             });
             playlistsMenu.show();
 
             let playlistSuccess = (data) => {
+              next = data.next;
               data.items.map((x) => {
+                x.idKey = x.id;
                 x.title = x.name;
                 x.subtitle = `${x.tracks.total} tracks`;
               });
-              playlistsMenu.items(0, data.items);
+              data.items.push({
+                idKey: 'loadmore',
+                title: 'Load more',
+                subtitle: 'Press here!',
+                icon: 'IMAGE_ICON_DOWN',
+              });
+              items.pop();
+              items.splice(items.length, 0, ...data.items);
+              playlistsMenu.items(0, items);
             };
 
-            let playlistFailure = (data) => {};
+            let playlistFailure = (data) => {
+              console.log(JSON.stringify(data));
+            };
 
-            spotifyAuth.makeCall(
-              API_PATHS.PLAYLISTS,
-              playlistSuccess,
-              playlistFailure
-            );
+            getPlaylists = (firstlaunch, next) => {
+              if (firstlaunch || next) {
+                spotifyAuth.makeCall(
+                  firstlaunch
+                    ? API_PATHS.PLAYLISTS
+                    : next.split('api.spotify.com/v1').pop(),
+                  playlistSuccess,
+                  playlistFailure
+                );
+              } else {
+                // there is nothing more to load, remove the last 'Load more' row
+                items.pop();
+                playlistsMenu.items(0, items);
+              }
+            };
+
+            getPlaylists(true);
             break;
           default:
             break;

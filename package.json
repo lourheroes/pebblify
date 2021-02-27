@@ -42,6 +42,11 @@
           "file": "action_bar_icon_dismiss.png"
         },
         {
+          "file": "action_bar_icon_down.png",
+          "name": "IMAGE_ICON_DOWN",
+          "type": "bitmap"
+        },
+        {
           "file": "menu_icon_pebblify.png",
           "menuIcon": true,
           "name": "IMAGE_MENU_ICON",
