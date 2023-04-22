@@ -8,7 +8,7 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "pebblejs": "^1.0.0"
   },
   "pebble": {
